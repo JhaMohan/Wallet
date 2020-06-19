@@ -7,7 +7,7 @@ module.exports = async function(deployer) {
   const daiToken = await DaiTokenMock.deployed();
 
   await daiToken.mint(
-    '0x35286d4b763104F4EC9867841103dfd1F47A8b9A',
+    '0x9Cc74953633cF3675465384BF0f3Cd5B0B37c772',
     '1000000000000000000000'
   )
 };

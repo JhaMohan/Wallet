@@ -42,9 +42,15 @@ class App extends Component {
     console.log(this.state.daiTokenContract)
     this.setState({balance:web3.utils.fromWei(balance.toString(),'ether')})
     console.log(this.state.balance)
-    const transaction = await daiTokenContract.getPastEvents('Transfer',{fromBlock:0 ,toBlock:'latest',filter:{from: this.state.account}})
-    console.log(transaction)
+    const transactions = await daiTokenContract.getPastEvents('Transfer',{fromBlock:0 ,toBlock:'latest',filter:{from: this.state.account}})
+    this.setState({transactions: transactions})
+    console.log(transactions)
   }
+
+  transfer(recipient,amount) {
+    this.state.daiTokenContract.methods.transfer(recipient,amount).send({from:this.state.account})
+  }
+
 
   constructor(props) {
     super(props)
@@ -54,6 +60,8 @@ class App extends Component {
       balance: 0,
       transactions: []
     }
+
+    this.transfer = this.transfer.bind(this)
   }
 
 
@@ -69,34 +77,74 @@ class App extends Component {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Dapp University
+            Exchange Wallet
           </a>
         </nav>
         <div className="container-fluid mt-5">
           <div className="row">
             <main role="main" className="col-lg-12 d-flex text-center">
-              <div className="content mr-auto ml-auto">
-                <a
-                  href="http://www.dappuniversity.com/bootcamp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img src={logo} className="App-logo" alt="logo" />
+              <div className="content mr-auto ml-auto" style={{width: "500px"}}>
+                <a>
+                  <img src={logo} width="150" />
                 </a>
-                <h1>Dapp University Starter Kit</h1>
-                <p>
-                  Edit <code>src/components/App.js</code> and save to reload.
-                </p>
-                <a
-                  className="App-link"
-                  href="http://www.dappuniversity.com/bootcamp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  LEARN BLOCKCHAIN <u><b>NOW! </b></u>
-                </a>
+    <h1>{this.state.balance} Token</h1>
+                <form onSubmit ={(event)=>{
+                    
+                    event.preventDefault()
+                    const recipient = this.recipient.value
+                    const amount = window.web3.utils.toWei(this.amount.value,'Ether') 
+                    this.transfer(recipient,amount)
+                    
+
+
+                  }}>
+                   <div className="form-group mr-sm-2">
+                     <input
+                      id = "recipient"
+                      type="text"
+                      ref={(input)=>{this.recipient = input}}
+                      className="form-control"
+                      placeholder="Recipient Address"
+                      required 
+                      />
+                     </div> 
+                     <div className="form-group mr-sm-2">
+                     <input
+                      id = "amount"
+                      type="text"
+                      ref={(input)=>{this.amount = input}}
+                      className="form-control"
+                      placeholder="Amount"
+                      required 
+                      />
+                     </div> 
+
+                     <button type="submit" className="btn btn-primary btn-block">Send</button>
+                 </form>
+
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Recipient</th>
+                        <th scope="col">Value</th>
+                      </tr>
+                    </thead>
+                    
+                    <tbody>
+                    {this.state.transactions.map((tx,index)=>{
+                      console.log('tx',tx)
+                      return(
+                        <tr key={index}>
+                          <td>{tx.returnValues.to}</td>
+                          <td>{window.web3.utils.fromWei(tx.returnValues.value.toString(),'Ether')}</td>
+                        </tr>
+                      )
+                    })}
+                    </tbody>
+                  </table>
               </div>
             </main>
+
           </div>
         </div>
       </div>
